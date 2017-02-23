@@ -1,9 +1,6 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Main
 {
@@ -54,25 +51,86 @@ public class Main
             videoRequests[video][endpoint] = req;
         }
 
-        for (int k = 0; k < endpoints; k++)
+        Item[][] cacheVideos = new Item[caches][videos];
+        ArrayList<ArrayList<Integer>> finalCache = new ArrayList<ArrayList<Integer>>();
+        int[] sizes = new int[caches];
+
+        for (int k = 0; k < caches; k++)
         {
-            System.out.println(k);
-            for (int j = 0; j < videos; j++)
+            finalCache.add(new ArrayList<Integer>());
+            for (int j = 0; j < endpoints; j++)
             {
-                if (videoRequests[j][k] != 0)
+//                System.out.println(k + ": " + j);
+                if (endpointCaches[j][k] != 0)
                 {
-                    for (int i = 0; i < caches; i++)
+                    for (int i = 0; i < videos; i++)
                     {
-                        if (endpointCaches[k][i] != 0)
-                        {
-                           createStorage(instances, j, k, i, videoRequests[j][k], videoSizes[j], endpointCaches[k][i]);
+                        if (cacheVideos[k][i] == null)
+                            cacheVideos[k][i] = new Item();
+
+                        if (videoRequests[i][j] != 0) {
+
+                            cacheVideos[k][i].priority += videoRequests[i][j];
+                            cacheVideos[k][i].id = i;
                         }
                     }
                 }
             }
+
+            for (int j = 0; j < videos; j++)
+                cacheVideos[k][j].priority /= videoSizes[j];
         }
 
-        System.out.println(instances);
+        for (int k = 0; k < cacheVideos.length; k++) {
+            Arrays.sort(cacheVideos[k]);
+//            System.out.println(Arrays.toString(cacheVideos[k]));
+        }
+
+        for (int k = 0; k < cacheVideos.length; k++)
+        {
+            for (int j = 0; j < videos; j++)
+            {
+//                System.out.println(k + ": " + j);
+                if ((sizes[k] + videoSizes[j]) <= cacheSizes)
+                {
+                    if (finalCache.get(k) == null)
+                        finalCache.set(k, new ArrayList<Integer>());
+
+                    finalCache.get(k).add(j);
+                    sizes[k] += videoSizes[j];
+                }
+            }
+        }
+
+        System.out.println(finalCache.size());
+        for (int k = 0; k < finalCache.size(); k++) {
+            System.out.print(k + " ");
+            for (int j = 0; j < finalCache.get(k).size(); j++)
+                System.out.print(finalCache.get(k).get(j) + " ");
+
+            System.out.println("");
+        }
+
+//
+//        for (int k = 0; k < endpoints; k++)
+//        {
+//            System.out.println(k);
+//            for (int j = 0; j < videos; j++)
+//            {
+//                if (videoRequests[j][k] != 0)
+//                {
+//                    for (int i = 0; i < caches; i++)
+//                    {
+//                        if (endpointCaches[k][i] != 0)
+//                        {
+//                           createStorage(instances, j, k, i, videoRequests[j][k], videoSizes[j], endpointCaches[k][i]);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+
+//        System.out.println(instances);
 
 //        System.out.println(Arrays.toString(videoSizes));
 //        System.out.println(Arrays.toString(datacenterLatencies));
@@ -93,6 +151,38 @@ public class Main
 
 //        for (int k = 0; k < r; k++)
 //            System.out.println(Arrays.toString(board[k]));
+    }
+
+    static class Item implements Comparable<Item>
+    {
+        double priority;
+        int id;
+
+        Item()
+        {
+            id = -1;
+            priority = -1;
+        }
+
+        @Override
+        public int compareTo(Item o) {
+
+            if (priority - o.priority > 0)
+                return -1;
+            else
+            if (priority - o.priority < 0)
+                return 1;
+
+            return 0;
+        }
+
+        @Override
+        public String toString() {
+            return "Item{" +
+                    "priority=" + priority +
+                    ", video=" + id +
+                    '}';
+        }
     }
 
     static class CacheStorage {
