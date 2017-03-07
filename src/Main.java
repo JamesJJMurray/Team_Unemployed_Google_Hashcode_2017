@@ -86,21 +86,28 @@ public class Main
 //            System.out.println(Arrays.toString(cacheVideos[k]));
         }
 
+        Random r = new Random(System.nanoTime());
+
         for (int k = 0; k < cacheVideos.length; k++)
         {
             for (int j = 0; j < videos; j++)
             {
+
+
 //                System.out.println(k + ": " + j);
-                if ((sizes[k] + videoSizes[j]) <= cacheSizes)
+                if ((r.nextDouble() <= 0.5) && (sizes[k] + videoSizes[j]) <= cacheSizes)
                 {
                     if (finalCache.get(k) == null)
                         finalCache.set(k, new ArrayList<Integer>());
 
                     finalCache.get(k).add(j);
                     sizes[k] += videoSizes[j];
+
+
                 }
             }
         }
+
 
         System.out.println(finalCache.size());
         for (int k = 0; k < finalCache.size(); k++) {
@@ -152,6 +159,17 @@ public class Main
 //        for (int k = 0; k < r; k++)
 //            System.out.println(Arrays.toString(board[k]));
     }
+
+//    private static boolean solve(Item[][] cacheVideos, int videos, double d) {
+//
+//        for (int k = 0; k < cacheVideos.length; k++)
+//        {
+//            if  cacheVideos[k][vid].priority > d)
+//                return false;
+//        }
+//
+//        return true;
+//    }
 
     static class Item implements Comparable<Item>
     {
